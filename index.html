@@ -70,7 +70,10 @@ canvas{display:block;max-width:100%;height:auto;margin:0 auto;border-radius:4px;
 .srow .sample{margin:0;font-family:var(--gp-specimen);font-size:clamp(24px,3.4vw,42px);line-height:1.35;
   overflow-wrap:anywhere}
 footer.site{margin:36px 0 40px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:#777;
-  display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+  display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+header.site .repo{font-size:13px;margin-top:4px}
+header.site .repo a{color:#555;text-decoration:none;border-bottom:1px solid var(--line)}
+header.site .repo a:hover{color:var(--accent);border-color:var(--accent)}
 .noscript{background:#fdf6f6;border:1px solid #ecd3d3;border-radius:10px;padding:12px;margin-top:14px}
 </style>
 </head>
@@ -78,6 +81,7 @@ footer.site{margin:36px 0 40px;padding-top:14px;border-top:1px solid var(--line)
 <header class="site shell">
   <h1>手写试字 · 喵咛狗爬黑</h1>
   <p>把文字写出歪歪扭扭的手写感：输入 → 随机扰动排版 → 导出图片。字体为可商用的 SIL OFL 1.1 授权。</p>
+  <p class="repo">源码：<a href="https://github.com/boltomli/handwriting" target="_blank" rel="noopener">github.com/boltomli/handwriting</a></p>
 </header>
 
 <noscript><div class="noscript shell">本页试写与导出需要 JavaScript。</div></noscript>
@@ -174,6 +178,7 @@ footer.site{margin:36px 0 40px;padding-top:14px;border-top:1px solid var(--line)
 </main>
 
 <footer class="site shell">
+  <span>源码：<a href="https://github.com/boltomli/handwriting" target="_blank" rel="noopener">boltomli/handwriting</a>（主仓库）</span>
   <span>字体：<a href="https://miorning.github.io/miorning-goupahei/" target="_blank" rel="noopener">喵咛狗爬黑</a>
     by MIORNING · SIL OFL 1.1（见 <a href="OFL.txt">OFL.txt</a>）</span>
   <span>排版算法移植自 <a href="https://github.com/Gsllchb/Handright" target="_blank" rel="noopener">Handright</a> ·
