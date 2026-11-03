@@ -18,6 +18,26 @@ python3 -m http.server 8077
 # 打开 http://localhost:8077/
 ```
 
+## 部署到 GitHub Pages
+
+`.github/workflows/deploy-pages.yml` 在**构建时**才下载字体并打包，所以主分支依旧只有 ~196KB，站点却是完全自托管的（不依赖 miorning.github.io）：
+
+1. 仓库 **Settings → Pages → Source** 选 **GitHub Actions**（只需点一次）
+2. 之后 push 到 `main` 自动构建部署 → `https://boltomli.github.io/handwriting/`
+
+流水线会先 `sha256sum -c` 校验三个 woff2 再发布。站点只打包运行时必需的文件：
+
+```
+_site/
+├── index.html      # MIT
+├── coverage.js     # OFL-1.1
+├── OFL.txt         # 字体许可（分发字体必须随附）
+├── NOTICE          # 许可范围与署名
+└── webfonts/       # 构建时下载，不进 git
+```
+
+注意 `README.md` / `demo.png` 是 CC BY-NC-SA（非商业），**故意不上站**——部署出去的整站只有 MIT 代码 + OFL 字体，商用无虞。
+
 ## 文件
 
 | 文件 | 说明 |

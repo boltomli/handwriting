@@ -1,0 +1,64 @@
+# 构建时才下载字体，打包进 Pages 产物：
+# 主分支保持 ~196KB（不含 36MB woff2），站点却是完全自托管的。
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: 下载字体（不进 git 历史）
+        run: |
+          mkdir -p webfonts
+          base=https://miorning.github.io/miorning-goupahei/webfonts
+          curl -fsSL --retry 3 -o webfonts/MiorningGoupaHei-Preview.woff2      "$base/MiorningGoupaHei-Preview.woff2"
+          curl -fsSL --retry 3 -o webfonts/MiorningGoupaHei-Regular.woff2      "$base/MiorningGoupaHei-Regular.woff2"
+          curl -fsSL --retry 3 -o webfonts/MiorningGoupaHeiExtra-Regular.woff2 "$base/MiorningGoupaHeiExtra-Regular.woff2"
+          ls -lh webfonts
+
+      - name: 校验 SHA256（与官方 SHA256SUMS.txt 一致）
+        run: |
+          sha256sum -c - <<'EOF'
+          2479d2ee3ad6467a37f185fb1ee3240caeb59adaf0d30e1b9bcec85a71bcb994  webfonts/MiorningGoupaHei-Preview.woff2
+          956a4f3c72aac242c3576edf0126073879002d277f3dea5ef53d91c9fe1189da  webfonts/MiorningGoupaHei-Regular.woff2
+          d10a4cb6726acf56094351d389da68a853eddde4837881760b05682625d01e1d  webfonts/MiorningGoupaHeiExtra-Regular.woff2
+          EOF
+
+      - name: 组装站点（只放运行时需要的文件）
+        run: |
+          mkdir -p _site
+          cp index.html coverage.js OFL.txt NOTICE _site/
+          cp -r webfonts _site/
+          du -sh _site
+          ls -R _site | head -20
+
+      - uses: actions/configure-pages@v6
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
