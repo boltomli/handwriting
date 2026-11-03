@@ -18,7 +18,7 @@ body{margin:0;background:var(--bg);color:#232323;
   font:15px/1.65 system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
 .shell{max-width:1180px;margin:0 auto;padding:0 20px}
 a{color:var(--accent)}
-header.site{padding:30px 0 6px}
+header.site{padding:30px 20px 6px}
 header.site h1{font-size:21px;margin:0 0 4px;letter-spacing:.02em}
 header.site p{margin:0;color:#6b6b6b;font-size:13px}
 .workbench{display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;margin:18px 0 8px}
@@ -69,8 +69,8 @@ canvas{display:block;max-width:100%;height:auto;margin:0 auto;border-radius:4px;
 .srow .lang{font-size:12px;color:#999;letter-spacing:.06em}
 .srow .sample{margin:0;font-family:var(--gp-specimen);font-size:clamp(24px,3.4vw,42px);line-height:1.35;
   overflow-wrap:anywhere}
-footer.site{margin:36px 0 40px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:#777;
-  display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+footer.site{margin:36px auto 40px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:#777;
+  display:flex;flex-wrap:wrap;gap:6px 28px;justify-content:center;align-items:baseline;text-align:center}
 header.site .repo{font-size:13px;margin-top:4px}
 header.site .repo a{color:#555;text-decoration:none;border-bottom:1px solid var(--line)}
 header.site .repo a:hover{color:var(--accent);border-color:var(--accent)}
@@ -80,7 +80,7 @@ header.site .repo a:hover{color:var(--accent);border-color:var(--accent)}
 <body>
 <header class="site shell">
   <h1>手写试字 · 喵咛狗爬黑</h1>
-  <p>把文字写出歪歪扭扭的手写感：输入 → 随机扰动排版 → 导出图片。字体为可商用的 SIL OFL 1.1 授权。</p>
+  <p>把手写体变得更加手写：输入 → 随机扰动排版 → 导出图片。字体为可商用的 SIL OFL 1.1 授权。</p>
   <p class="repo">源码：<a href="https://github.com/boltomli/handwriting" target="_blank" rel="noopener">github.com/boltomli/handwriting</a></p>
 </header>
 
