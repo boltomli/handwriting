@@ -1,0 +1,51 @@
+手写试字 · 喵咛狗爬黑 —— 许可说明 / NOTICE
+================================================
+
+一、本作品各部分的许可
+--------------------
+
+代码（源码文件）                          MIT
+  - index.html
+  - e2e-test.mjs
+  - tools/build_coverage.py
+  版权 (c) 2026 Song Li，见 LICENSE。
+  可商用、可修改、可再分发，须保留版权与许可声明。
+
+文档与图片                                CC BY-NC-SA 4.0
+  - README.md
+  - demo.png
+  见 LICENSE-CC-BY-NC-SA-4.0.txt。
+  署名 + 非商业性使用 + 相同方式共享。
+
+字体派生数据                              SIL OFL-1.1
+  - coverage.js   （由狗爬黑 woff2 的 cmap 提取生成，构建脚本见 tools/）
+  - OFL.txt
+  **可商用、可修改、可再分发**，须随附 OFL 条款，
+  不得对该数据附加任何限制（因此它不能被 CC 的非商业条款覆盖）。
+
+字体文件（不入库，需自行下载）            SIL OFL-1.1
+  - webfonts/*.woff2、官方 fonts/*.ttc
+  版权 (c) 2026 MIORNING（喵咛），见 OFL.txt。
+  用本工具生成的图片属于字体的输出物，同样不受非商业限制。
+
+二、第三方署名
+--------------
+
+Handright —— BSD-3-Clause —— Gsllchb
+  排版算法（扰动、行距、字距等参数语义）参考自该项目。
+  https://github.com/Gsllchb/Handright
+
+MyShinyApps/handwriting —— MIT —— Song Li
+  原 R Shiny 实现，本项目是其纯前端重写。
+  https://github.com/boltomli/MyShinyApps/tree/master/handwriting
+
+喵咛狗爬黑 —— SIL OFL-1.1 —— MIORNING（喵咛）
+  字体与官方试字站，交互设计有参考。
+  https://miorning.github.io/miorning-goupahei/
+
+三、关于「非商业」
+------------------
+
+非商业限制只作用于 README.md 和 demo.png 这类文档/图片素材。
+工具代码是 MIT，字体和字表数据是 OFL，两者都**可商用**：
+拿本工具给商业项目出图、二次开发集成，都没有许可障碍。

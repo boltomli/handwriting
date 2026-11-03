@@ -1,0 +1,676 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: MIT -->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>手写试字 · 喵咛狗爬黑</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23f2eee6'/><text x='16' y='23' font-size='20' text-anchor='middle' fill='%23121212'>字</text></svg>">
+<style>
+:root{
+  --line:#e2ddd2; --panel:#fff; --bg:#faf8f4; --accent:#b31919;
+  --gp:sans-serif;
+  --gp-specimen:sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:#232323;
+  font:15px/1.65 system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif}
+.shell{max-width:1180px;margin:0 auto;padding:0 20px}
+a{color:var(--accent)}
+header.site{padding:30px 0 6px}
+header.site h1{font-size:21px;margin:0 0 4px;letter-spacing:.02em}
+header.site p{margin:0;color:#6b6b6b;font-size:13px}
+.workbench{display:grid;grid-template-columns:340px minmax(0,1fr);gap:18px;margin:18px 0 8px}
+@media(max-width:900px){.workbench{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px}
+.panel h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#8a8a8a;margin:0 0 10px;font-weight:600}
+textarea{width:100%;min-height:96px;resize:vertical;border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;font:15px/1.6 inherit;background:#fffdf9}
+textarea:focus,input:focus,select:focus{outline:2px solid #d8cfc0;outline-offset:1px}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 4px}
+.presets button{font-size:12px;padding:4px 9px;border:1px solid var(--line);background:#fff;border-radius:999px;cursor:pointer}
+.presets button:hover{border-color:#c9bfae;background:#fdfaf4}
+.field{margin:12px 0 0}
+.field .lab{display:flex;justify-content:space-between;font-size:13px;color:#555;margin-bottom:3px}
+.field .lab output{font-variant-numeric:tabular-nums;color:#222}
+input[type=range]{width:100%;margin:0;accent-color:#8a7c66}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+select{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:#fff;font:inherit}
+.themes{display:flex;gap:8px;margin-top:6px}
+.swatch{width:44px;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;font-size:13px;
+  display:flex;align-items:center;justify-content:center;font-family:var(--gp)}
+.swatch[aria-pressed=true]{border-color:#8a7c66;box-shadow:0 0 0 2px #efe9df}
+.seedrow{display:flex;gap:8px;align-items:center}
+.seedrow input[type=number]{width:110px;padding:5px 8px;border:1px solid var(--line);border-radius:8px;font:inherit}
+.ghost{border:1px solid var(--line);background:#fff;border-radius:8px;padding:5px 10px;cursor:pointer;font:inherit;font-size:13px}
+.ghost:hover{background:#fdfaf4}
+.primary{background:#1f1f1f;color:#fff;border:none;border-radius:10px;padding:9px 14px;cursor:pointer;font:inherit;font-size:14px}
+.primary:hover{background:#000}
+.primary:disabled{opacity:.4;cursor:not-allowed}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.status{font-size:13px;color:#555;background:#f6f2ea;border:1px dashed #ddd4c4;border-radius:10px;padding:9px 11px;margin-top:12px}
+.status b{color:#222}
+.status .act{display:block;margin-top:6px;display:flex;gap:8px;flex-wrap:wrap}
+.stage{display:flex;flex-direction:column;gap:10px;min-width:0}
+.canvasbox{background:#efece5;border:1px solid var(--line);border-radius:14px;padding:14px;overflow:auto}
+canvas{display:block;max-width:100%;height:auto;margin:0 auto;border-radius:4px;
+  box-shadow:0 6px 24px rgba(0,0,0,.10);background:#fff}
+.metabar{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:13px;color:#666}
+.missing{border:1px solid #ecd3d3;background:#fdf6f6;border-radius:10px;padding:10px 12px;font-size:13px}
+.missing[hidden]{display:none}
+.missing strong{color:#a13a3a}
+.missing .chars{font-family:ui-monospace,Consolas,monospace;word-break:break-all;color:#6a4a4a;margin:4px 0}
+.specimen{margin:34px 0 10px}
+.section-label{display:flex;justify-content:space-between;font-size:12px;letter-spacing:.1em;color:#9a9a9a;
+  border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:14px}
+.srow{display:grid;grid-template-columns:130px minmax(0,1fr);gap:14px;align-items:baseline;padding:9px 0;
+  border-bottom:1px dashed #eae5da}
+.srow .lang{font-size:12px;color:#999;letter-spacing:.06em}
+.srow .sample{margin:0;font-family:var(--gp-specimen);font-size:clamp(24px,3.4vw,42px);line-height:1.35;
+  overflow-wrap:anywhere}
+footer.site{margin:36px 0 40px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:#777;
+  display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+.noscript{background:#fdf6f6;border:1px solid #ecd3d3;border-radius:10px;padding:12px;margin-top:14px}
+</style>
+</head>
+<body>
+<header class="site shell">
+  <h1>手写试字 · 喵咛狗爬黑</h1>
+  <p>把文字写出歪歪扭扭的手写感：输入 → 随机扰动排版 → 导出图片。字体为可商用的 SIL OFL 1.1 授权。</p>
+</header>
+
+<noscript><div class="noscript shell">本页试写与导出需要 JavaScript。</div></noscript>
+
+<main class="shell">
+  <div class="workbench">
+    <section class="panel" aria-label="试写控制">
+      <h2>你的文字</h2>
+      <textarea id="text" spellcheck="false" maxlength="600">月是故乡明</textarea>
+      <div class="presets" aria-label="试字示例">
+        <button type="button" data-preset="月是故乡明">原示例</button>
+        <button type="button" data-preset="字可以歪。&#10;态度要正。">两行标题</button>
+        <button type="button" data-preset="遙望樓臺&#10;還我漢字">繁體</button>
+        <button type="button" data-preset="龜鑿鬱齉&#10;龘靐鱻麤">生僻字</button>
+        <button type="button" data-preset="今日は、いい日だ。&#10;오늘도 내 방식대로.">日 / 韩</button>
+        <button type="button" data-preset="¡Mañana será otro día!&#10;Caffè, perché no?">西 / 意</button>
+      </div>
+
+      <div class="field"><div class="lab"><label for="fontSize">字号</label><output id="fontSizeV">96</output></div>
+        <input id="fontSize" type="range" min="32" max="180" step="1" value="96"></div>
+      <div class="field"><div class="lab"><label for="lineSpacing">行距</label><output id="lineSpacingV">120</output></div>
+        <input id="lineSpacing" type="range" min="40" max="320" step="1" value="120"></div>
+      <div class="field"><div class="lab"><label for="wordSpacing">字距</label><output id="wordSpacingV">12</output></div>
+        <input id="wordSpacing" type="range" min="0" max="48" step="1" value="12"></div>
+      <div class="field"><div class="lab"><label for="margin">页边距</label><output id="marginV">100</output></div>
+        <input id="margin" type="range" min="20" max="200" step="2" value="100"></div>
+      <div class="field"><div class="lab"><label for="perturb">抖动强度</label><output id="perturbV">100%</output></div>
+        <input id="perturb" type="range" min="0" max="300" step="5" value="100"></div>
+
+      <div class="field row2">
+        <div><div class="lab"><label for="pageSize">纸张</label></div>
+          <select id="pageSize">
+            <option value="900x1000" selected>900 × 1000（原版）</option>
+            <option value="1600x900">1600 × 900 横版</option>
+            <option value="1080x1080">1080 × 1080 方形</option>
+            <option value="1242x1660">1242 × 1660 竖版</option>
+          </select></div>
+        <div><div class="lab"><label for="scale">清晰度</label></div>
+          <select id="scale"><option value="1">1×</option><option value="2" selected>2×</option><option value="3">3×</option></select></div>
+      </div>
+
+      <div class="field"><div class="lab"><span>纸与墨</span></div>
+        <div class="themes" role="group" aria-label="纸与墨">
+          <button class="swatch" type="button" data-theme="paper" aria-pressed="true"
+            style="background:#f2eee6;color:#121212">Aa</button>
+          <button class="swatch" type="button" data-theme="white" aria-pressed="false"
+            style="background:#ffffff;color:#111">Aa</button>
+          <button class="swatch" type="button" data-theme="dark" aria-pressed="false"
+            style="background:#121212;color:#f2eee6">Aa</button>
+          <button class="swatch" type="button" data-theme="red" aria-pressed="false"
+            style="background:#b31919;color:#f2eee6">Aa</button>
+        </div>
+      </div>
+
+      <div class="field"><div class="lab"><label for="seed">随机种子</label></div>
+        <div class="seedrow">
+          <input id="seed" type="number" min="0" max="2147483647" step="1">
+          <button class="ghost" type="button" id="reseed">换一个</button>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary" type="button" id="exportPng">导出 PNG</button>
+        <button class="ghost" type="button" id="exportWebp">导出 WebP</button>
+      </div>
+
+      <div class="status" id="fontStatus" role="status">正在准备字体…</div>
+      <div class="missing" id="missingPanel" hidden>
+        <strong id="missingTitle">以下字符未收录</strong>
+        <p class="chars" id="missingChars"></p>
+        <div id="missingExtra"></div>
+      </div>
+    </section>
+
+    <section class="stage" aria-label="试写预览">
+      <div class="metabar">
+        <span id="meta">—</span>
+        <span id="fontNote"></span>
+      </div>
+      <div class="canvasbox"><canvas id="canvas" width="900" height="1000" aria-label="手写预览"></canvas></div>
+      <div class="metabar"><span>同一种子 + 同一段文字 = 同一张图。</span><span id="seedNote"></span></div>
+    </section>
+  </div>
+
+  <section class="specimen" aria-label="字样">
+    <div class="section-label"><span>SPECIMEN / 精简字样</span><span id="specimenNote">字体载入后即为狗爬黑字样</span></div>
+    <div class="srow"><span class="lang">简体中文</span><p class="sample">风吹不倒骨头</p></div>
+    <div class="srow"><span class="lang">繁體中文</span><p class="sample">遙望樓臺，還我漢字。</p></div>
+    <div class="srow"><span class="lang">日本語 / 한국어</span><p class="sample">今日は、いい日だ。 오늘도 내 방식대로.</p></div>
+    <div class="srow"><span class="lang">LATIN</span><p class="sample">Make it your own.</p></div>
+    <div class="srow"><span class="lang">数字 / 标点</span><p class="sample">0123456789 !?.,:;()[]{}「」『』“”</p></div>
+    <div class="srow"><span class="lang">拼音 / 声调</span><p class="sample">nǐ hǎo · lǜ sè · zhōng wén</p></div>
+  </section>
+</main>
+
+<footer class="site shell">
+  <span>字体：<a href="https://miorning.github.io/miorning-goupahei/" target="_blank" rel="noopener">喵咛狗爬黑</a>
+    by MIORNING · SIL OFL 1.1（见 <a href="OFL.txt">OFL.txt</a>）</span>
+  <span>排版算法移植自 <a href="https://github.com/Gsllchb/Handright" target="_blank" rel="noopener">Handright</a> ·
+    灵感来自 <a href="https://github.com/boltomli/MyShinyApps/tree/master/handwriting" target="_blank" rel="noopener">MyShinyApps/handwriting</a></span>
+</footer>
+
+<script src="coverage.js"></script>
+<script>
+(() => {
+'use strict';
+
+/* ---------- 字体来源 ---------- */
+const REMOTE = 'https://miorning.github.io/miorning-goupahei/webfonts/';
+const LOCAL  = './webfonts/';
+const F_MAIN = 'MiorningGoupaHei-Regular.woff2';
+const F_EXTRA= 'MiorningGoupaHeiExtra-Regular.woff2';
+const F_PREV = 'MiorningGoupaHei-Preview.woff2';
+const ALIAS  = 'Goupa Hand';       // 载入字体时使用的统一家族名
+const ALIAS_X= 'Goupa Hand Extra';
+const ALIAS_P= 'Goupa Preview';
+
+const state = {
+  main:false, extra:false, preview:false,
+  sysMain:null, sysExtra:null,
+  missing:new Set(), needExtra:new Set(),
+  seed: Math.floor(Math.random()*2147483647),
+  busy:false
+};
+
+const $ = id => document.getElementById(id);
+const canvas = $('canvas'), ctx = canvas.getContext('2d');
+const mCanvas = document.createElement('canvas');
+mCanvas.width = mCanvas.height = 72;
+const mCtx = mCanvas.getContext('2d', {willReadFrequently:true});
+
+/* ---------- 随机数（mulberry32 + Box-Muller），保证可复现 ---------- */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function makeGauss(rnd){
+  let spare = null;
+  return (mean, sigma) => {
+    if(sigma === 0) return mean;
+    if(spare !== null){ const v = spare; spare = null; return mean + sigma*v; }
+    let u, v, s;
+    do{ u = rnd()*2-1; v = rnd()*2-1; s = u*u+v*v; }while(s >= 1 || s === 0);
+    const m = Math.sqrt(-2*Math.log(s)/s);
+    spare = v*m;
+    return mean + sigma*u*m;
+  };
+}
+
+/* ---------- 字体栈 ---------- */
+function stack(){
+  const a = [];
+  if(state.main)   a.push('"'+ALIAS+'"');
+  if(state.sysMain)a.push('"'+state.sysMain+'"');
+  if(state.extra)  a.push('"'+ALIAS_X+'"');
+  if(state.sysExtra)a.push('"'+state.sysExtra+'"');
+  a.push('sans-serif');
+  return a.join(',');
+}
+function hasFont(){ return state.main || !!state.sysMain; }
+
+/* ---------- 字表：由 tools/build_coverage.py 从字体文件提取（coverage.js）
+   每个码位 1 bit；不靠像素比较——浏览器的系统回退字体会掩盖缺字 ---------- */
+const COV = (() => {
+  const d = window.GP_COV;
+  if(!d) return null;
+  const dec = s => {
+    const bin = atob(s);
+    const a = new Uint8Array(bin.length);
+    for(let i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i);
+    return a;
+  };
+  return {main:dec(d.main), extra:dec(d.extra)};
+})();
+const inCov = (arr, cp) => ((arr[cp >> 3] >> (cp & 7)) & 1) === 1;
+function updateCssVars(){
+  const s = stack();
+  document.documentElement.style.setProperty('--gp', s);
+  const p = [];
+  if(state.preview) p.push('"'+ALIAS_P+'"');
+  if(state.main)    p.push('"'+ALIAS+'"');
+  if(state.sysMain) p.push('"'+state.sysMain+'"');
+  p.push('sans-serif');
+  document.documentElement.style.setProperty('--gp-specimen', p.join(','));
+}
+
+/* ---------- 探测本机是否装了字体 ---------- */
+function probeFamily(names){
+  const draw = font => {
+    mCtx.clearRect(0,0,72,72);
+    mCtx.font = font; mCtx.textBaseline = 'top'; mCtx.fillStyle = '#000';
+    mCtx.fillText('喵中永', 2, 2);
+    return mCanvas.toDataURL();
+  };
+  const base = draw('48px "__gp_no_such_family__",sans-serif');
+  for(const n of names){ if(draw('48px "'+n+'"') !== base) return n; }
+  return null;
+}
+
+/* ---------- 带进度的字体下载 ---------- */
+async function fetchBuf(url, onProgress){
+  const res = await fetch(url, {mode:'cors'});
+  if(!res.ok) throw new Error('HTTP '+res.status);
+  const total = Number(res.headers.get('content-length') || 0);
+  if(!res.body || !total) return await res.arrayBuffer();
+  const reader = res.body.getReader();
+  const chunks = []; let got = 0;
+  for(;;){
+    const {done, value} = await reader.read();
+    if(done) break;
+    chunks.push(value); got += value.length;
+    onProgress && onProgress(got/total, got, total);
+  }
+  const buf = new Uint8Array(got); let off = 0;
+  for(const c of chunks){ buf.set(c, off); off += c.length; }
+  return buf.buffer;
+}
+
+async function loadFace(alias, files, onProgress){
+  let lastErr = null;
+  for(const url of files){
+    // 1) fetch：同源 http 下能报真实字节进度（file:// 必被 CORS 拦，干脆不碰）
+    if(location.protocol !== 'file:'){
+      try{
+        const buf = await fetchBuf(url, onProgress);
+        const face = new FontFace(alias, buf);
+        await face.load();
+        document.fonts.add(face);
+        return url;
+      }catch(e){ lastErr = e; }
+    }
+    // 2) 回退：FontFace 直接用 url() 引用，file:// 双击打开时也能载入
+    try{
+      onProgress && onProgress(-1, 0, 0);
+      const face = await new FontFace(alias, 'url("' + url + '")').load();
+      document.fonts.add(face);
+      return url;
+    }catch(e){ lastErr = e; }
+  }
+  throw lastErr || new Error('字体源不可用');
+}
+
+/* ---------- 状态提示 ---------- */
+function fontStatus(html){ $('fontStatus').innerHTML = html; }
+function esc(s){ return String(s).replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c])); }
+
+function showActions(list){
+  return '<span class="act">' + list.map(a =>
+    a.file ? '<label class="ghost" style="cursor:pointer">' + esc(a.label) +
+             '<input type="file" accept=".woff2,.woff,.ttf,.otf" style="display:none" data-act="' + a.file + '"></label>'
+           : '<button class="ghost" type="button" data-act="' + a.act + '">' + esc(a.label) + '</button>'
+  ).join('') + '</span>';
+}
+
+/* ---------- 启动：本机字体 → 本地文件 → 手动在线/选文件 ---------- */
+async function boot(){
+  updateCssVars();
+
+  // 84KB 预览字体先跑起来，字样区立刻有东西看
+  loadFace(ALIAS_P, [LOCAL+F_PREV, REMOTE+F_PREV])
+    .then(() => { state.preview = true; updateCssVars(); })
+    .catch(() => {});
+
+  const sysMain = probeFamily(['Miorning Goupa Hei','喵咛狗爬黑','MiorningGoupaHei']);
+  if(sysMain){
+    state.sysMain = sysMain;
+    state.sysExtra = probeFamily(['Miorning Goupa Hei Extra','喵咛狗爬黑 生僻补充','MiorningGoupaHeiExtra']);
+    updateCssVars(); refresh();
+    fontStatus('<b>字体：本机已安装</b>（' + esc(sysMain) +
+      (state.sysExtra ? ' + 生僻补充' : '') + '）' +
+      (state.sysExtra ? '' : showActions([{act:'extra', label:'加载生僻补充库 17.9MB'}])));
+    $('specimenNote').textContent = '本机字体已就绪';
+    return;
+  }
+
+  fontStatus('<b>字体：本机未检测到</b>，尝试本地 webfonts …');
+  try{
+    await loadFace(ALIAS, [LOCAL+F_MAIN], pct('载入本地字体'));
+    state.main = true; updateCssVars(); refresh();
+    fontStatus('<b>字体：已载入</b> webfonts/' + F_MAIN +
+      showActions([{act:'extra', label:'加载生僻补充库 17.9MB'}]));
+    $('specimenNote').textContent = '本地字体已载入';
+  }catch(e){
+    fontStatus('<b>字体：未载入</b>（webfonts/ 下没找到字体文件）' +
+      showActions([
+        {act:'remote', label:'加载在线字体 17.8MB'},
+        {file:'file',  label:'选择字体文件…'}
+      ]));
+  }
+}
+
+function pct(label){
+  return (p, got, total) => {
+    if(p < 0){ fontStatus('<b>' + label + '</b>（file:// 模式，无进度）'); return; }
+    fontStatus('<b>' + label + '</b> ' + Math.round(p*100) + '%（' +
+      (got/1048576).toFixed(1) + ' / ' + (total/1048576).toFixed(1) + ' MB）');
+  };
+}
+
+async function loadMainFrom(files, label){
+  state.busy = true;
+  try{
+    await loadFace(ALIAS, files, pct(label));
+    state.main = true; updateCssVars(); refresh();
+    fontStatus('<b>字体：已载入</b> ' + esc(label) +
+      showActions([{act:'extra', label:'加载生僻补充库 17.9MB'}]));
+    $('specimenNote').textContent = '字体已载入，字样即狗爬黑';
+    return true;
+  }catch(e){
+    fontStatus('<b>字体：加载失败</b>（网络或格式问题）' +
+      showActions([
+        {act:'remote', label:'重试在线加载'},
+        {file:'file',  label:'选择字体文件…'}
+      ]));
+    return false;
+  }finally{ state.busy = false; }
+}
+
+async function loadExtra(){
+  if(state.extra || state.sysExtra || state.busy) return;
+  state.busy = true;
+  fontStatus('<b>正在加载生僻补充库…</b>');
+  try{
+    await loadFace(ALIAS_X, [LOCAL+F_EXTRA, REMOTE+F_EXTRA], pct('载入生僻补充库'));
+    state.extra = true; updateCssVars(); refresh();
+    fontStatus('<b>字体：主库 + 生僻补充库均已载入</b>');
+  }catch(e){
+    fontStatus('<b>生僻补充库加载失败</b>' +
+      showActions([{act:'extra', label:'重试'}, {file:'fileX', label:'选择补充字体文件…'}]));
+  }finally{ state.busy = false; }
+}
+
+/* ---------- 参数 ---------- */
+const THEMES = {
+  paper : {bg:'#f2eee6', fg:'#121212'},
+  white : {bg:'#ffffff', fg:'#111111'},
+  dark  : {bg:'#121212', fg:'#f2eee6'},
+  red   : {bg:'#b31919', fg:'#f2eee6'}
+};
+let theme = 'paper';
+
+function params(){
+  const [w, h] = $('pageSize').value.split('x').map(Number);
+  return {
+    width:w, pageH:h,
+    fontSize: Number($('fontSize').value),
+    lineSpacing: Number($('lineSpacing').value),
+    wordSpacing: Number($('wordSpacing').value),
+    margin: Number($('margin').value),
+    perturb: Number($('perturb').value)/100,
+    scale: Number($('scale').value),
+    bg: THEMES[theme].bg, fg: THEMES[theme].fg
+  };
+}
+
+/* ---------- 排版 + 绘制（Handright 的 Template 参数移植） ----------
+   font_size=96  line_spacing=120  word_spacing=12  margins=100
+   line_spacing_sigma=4  font_size_sigma=12  word_spacing_sigma=3
+   perturb_x_sigma=4  perturb_y_sigma=4  perturb_theta_sigma=0.05        */
+function layout(text, p, rnd){
+  const g = makeGauss(rnd);
+  const k = p.perturb;
+  const fsSigma  = 12 * k;
+  const lineSig  = 4  * k;
+  const wordSig  = 3  * k;
+  const pxSig    = 4  * k;
+  const pySig    = 4  * k;
+  const thSig    = 0.05 * k;
+  const fontStr = fs => fs + 'px ' + stack();
+  const measure = (ch, fs) => { mCtx.font = fontStr(fs); return mCtx.measureText(ch).width; };
+
+  const ops = [];
+  const rows = text.replace(/\r\n?/g, '\n').split('\n');
+  let y = p.margin;
+  let maxRight = p.margin;
+
+  for(const row of rows){
+    let x = p.margin;
+    let atLineStart = true;
+    const chars = Array.from(row);
+    if(chars.length === 0){
+      y += p.lineSpacing + g(0, lineSig);
+      continue;
+    }
+    for(const ch of chars){
+      const isWs = ch === ' ' || ch === '\t';
+      const fs = Math.max(8, g(p.fontSize, fsSigma));
+      const w = isWs ? 0 : measure(ch, fs);
+      if(!atLineStart && x + w > p.width - p.margin){      // 自动换行
+        x = p.margin;
+        y += p.lineSpacing + g(0, lineSig);
+        atLineStart = true;
+      }
+      if(isWs){
+        x += p.wordSpacing + g(0, wordSig);
+        continue;
+      }
+      ops.push({
+        ch, fs,
+        x: x + g(0, pxSig),
+        y: y + g(0, pySig),
+        rot: g(0, thSig),
+        missing: blocked(ch)
+      });
+      x += w;
+      if(x > maxRight) maxRight = x;
+      atLineStart = false;
+    }
+    y += p.lineSpacing + g(0, lineSig);
+  }
+  return {ops, bottom:y, maxRight};
+}
+
+function render(){
+  const p = params();
+  const text = $('text').value;
+  const rnd = mulberry32(state.seed >>> 0);
+  const {ops, bottom} = layout(text, p, rnd);
+
+  const w = p.width;
+  const h = Math.max(p.pageH, Math.ceil(bottom + p.margin));
+  canvas.width  = Math.round(w * p.scale);
+  canvas.height = Math.round(h * p.scale);
+  canvas.style.aspectRatio = w + ' / ' + h;
+  ctx.setTransform(p.scale, 0, 0, p.scale, 0, 0);
+
+  ctx.fillStyle = p.bg;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.fillStyle = p.fg;
+  ctx.textBaseline = 'top';
+  for(const op of ops){
+    if(op.missing){                                  // 缺字画虚线框，不用系统字体顶替
+      ctx.save();
+      ctx.translate(op.x, op.y);
+      ctx.rotate(op.rot);
+      ctx.globalAlpha = .45;
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = p.fg;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(1, 1, op.fs*0.9, op.fs*0.9);
+      ctx.restore();
+      continue;
+    }
+    ctx.save();
+    ctx.translate(op.x, op.y);
+    ctx.rotate(op.rot);
+    ctx.font = op.fs + 'px ' + stack();
+    ctx.fillText(op.ch, 0, 0);
+    ctx.restore();
+  }
+
+  $('meta').textContent = '输出 ' + canvas.width + ' × ' + canvas.height +
+    ' px · ' + ops.length + ' 字 · 种子 ' + state.seed;
+  $('seedNote').textContent = '种子 ' + state.seed;
+}
+
+/* ---------- 缺字检测：查字表 ---------- */
+function detectMissing(text){
+  const res = {missing:new Set(), needExtra:new Set()};
+  if(!hasFont() || !COV) return res;
+  const extraReady = state.extra || !!state.sysExtra;
+  const seen = new Set();
+  for(const ch of text){
+    if(/\s/.test(ch) || seen.has(ch)) continue;
+    seen.add(ch);
+    const cp = ch.codePointAt(0);
+    if(inCov(COV.main, cp)) continue;
+    if(inCov(COV.extra, cp)){
+      if(!extraReady) res.needExtra.add(ch);   // 补充库能解决 → 给入口
+    }else{
+      res.missing.add(ch);                     // 两库都没有 → 虚线框
+    }
+  }
+  return res;
+}
+function blocked(ch){ return state.missing.has(ch) || state.needExtra.has(ch); }
+
+function updateMissingPanel(){
+  const panel = $('missingPanel');
+  const list = Array.from(new Set([...state.missing, ...state.needExtra]));
+  if(!list.length){ panel.hidden = true; return; }
+  panel.hidden = false;
+  $('missingTitle').textContent = state.missing.size
+    ? '以下字符未收录' : '以下字符在主库之外，需加载补充库';
+  $('missingChars').textContent = list.slice(0, 40).map(c =>
+    'U+' + c.codePointAt(0).toString(16).toUpperCase().padStart(4,'0') + ' ' + c).join('  ') +
+    (list.length > 40 ? '  …共 ' + list.length + ' 个' : '');
+  const box = $('missingExtra');
+  box.innerHTML = (state.needExtra.size && !state.extra && !state.sysExtra)
+    ? '生僻补充库尚未载入，先<button class="ghost" type="button" data-act="extra">加载生僻补充库 17.9MB</button>再看。'
+    : '';
+}
+
+/* ---------- 刷新（防抖） ---------- */
+let timer = 0;
+function refresh(immediate){
+  clearTimeout(timer);
+  const run = () => {
+    const {missing, needExtra} = detectMissing($('text').value);
+    state.missing = missing;
+    state.needExtra = needExtra;
+    render();
+    updateMissingPanel();
+  };
+  if(immediate) run(); else timer = setTimeout(run, 120);
+}
+
+/* ---------- 导出 ---------- */
+function exportImage(mime, ext){
+  try{
+    canvas.toBlob(blob => {
+      if(!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'handwriting-' + new Date().toISOString().replace(/[:.]/g,'-') + '.' + ext;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 5000);
+    }, mime);
+  }catch(e){ alert('导出失败：' + e.message); }
+}
+
+/* ---------- 事件绑定 ---------- */
+$('text').addEventListener('input', () => refresh());
+document.querySelectorAll('.presets button').forEach(b => {
+  b.addEventListener('click', () => { $('text').value = b.dataset.preset; refresh(); });
+});
+[['fontSize','fontSizeV',v=>v],
+ ['lineSpacing','lineSpacingV',v=>v],
+ ['wordSpacing','wordSpacingV',v=>v],
+ ['margin','marginV',v=>v],
+ ['perturb','perturbV',v=>v+'%']].forEach(([id, out, fmt]) => {
+  const el = $(id);
+  el.addEventListener('input', () => { $(out).textContent = fmt(el.value); refresh(true); });
+});
+['pageSize','scale'].forEach(id => $(id).addEventListener('change', () => refresh(true)));
+document.querySelectorAll('.swatch').forEach(b => {
+  b.addEventListener('click', () => {
+    theme = b.dataset.theme;
+    document.querySelectorAll('.swatch').forEach(x =>
+      x.setAttribute('aria-pressed', String(x === b)));
+    refresh(true);
+  });
+});
+$('seed').value = state.seed;
+$('seed').addEventListener('change', () => {
+  const v = Number($('seed').value);
+  if(Number.isFinite(v) && v >= 0){ state.seed = Math.floor(v) % 2147483648; refresh(true); }
+  else $('seed').value = state.seed;
+});
+$('reseed').addEventListener('click', () => {
+  state.seed = Math.floor(Math.random()*2147483647);
+  $('seed').value = state.seed;
+  refresh(true);
+});
+$('exportPng').addEventListener('click', () => exportImage('image/png', 'png'));
+$('exportWebp').addEventListener('click', () => exportImage('image/webp', 'webp'));
+
+document.addEventListener('click', e => {
+  const btn = e.target.closest('[data-act]');
+  if(!btn || btn.tagName === 'INPUT') return;
+  const act = btn.dataset.act;
+  if(act === 'remote') loadMainFrom([REMOTE+F_MAIN, LOCAL+F_MAIN], '在线字体');
+  else if(act === 'extra') loadExtra();
+});
+document.addEventListener('change', e => {
+  const inp = e.target.closest('input[type=file][data-act]');
+  if(!inp || !inp.files || !inp.files[0]) return;
+  const file = inp.files[0];
+  const url = URL.createObjectURL(file);
+  const act = inp.dataset.act;
+  const alias = act === 'fileX' ? ALIAS_X : ALIAS;
+  state.busy = true;
+  fontStatus('<b>正在载入所选字体文件…</b> ' + esc(file.name));
+  new FontFace(alias, url).load().then(face => {
+    document.fonts.add(face);
+    if(act === 'fileX'){ state.extra = true; } else { state.main = true; }
+    updateCssVars(); refresh();
+    fontStatus('<b>字体：已载入</b> ' + esc(file.name));
+  }).catch(err => {
+    fontStatus('<b>无法读取该文件</b>（需 woff2 / woff / ttf / otf，不支持 ttc）');
+  }).finally(() => { state.busy = false; URL.revokeObjectURL(url); });
+});
+
+/* ---------- 起飞 ---------- */
+boot();
+refresh(true);
+})();
+</script>
+</body>
+</html>
